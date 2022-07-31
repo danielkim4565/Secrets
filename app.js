@@ -4,7 +4,8 @@ const express = require("express");
 const ejs = require("ejs");
 const mongoose = require('mongoose')
 const encrypt = require('mongoose-encryption'); 
-const mda = require("md5");
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 
 const app = express();
@@ -39,30 +40,35 @@ app.get("/register", function(req, res) {
 });
 
 app.post("/register", function(req, res) {
-    const newUser = new User({
+    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        const newUser = new User({
         email: req.body.username,
-        password: md5(req.body.password)
-    })
-    newUser.save(function(err) {
-        if (err) {
-            res.send(err);
-        } else {
-            res.render("secrets");
-        }
-    })
+        password: hash
+        });
+        newUser.save(function(err) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.render("secrets");
+            }
+        });
+    });
+
 });
 
 app.post("/login", function(req,res) {
     const email = req.body.username;
-    const password = md5(req.body.password);
+    const password = req.body.password;
 
     User.findOne({email: email}, function(err, foundUser) {
         if (err) {
             res.send(err);
         }  else if (foundUser) {
-            if (password === foundUser.password) {
-                res.render("secrets");
-            }
+            bcrypt.compare(password, foundUser.password, function(err, result) {
+                if (result) {
+                    res.render("secrets");
+                }
+            });
         } 
     });
 });
