@@ -1,24 +1,28 @@
 pipeline {
+
   environment {
     dockerimagename = "danielkimtor15/my-secret-app"
-    dockerImage = "danielkimtor15"
+    dockerImage = ""
   }
+
   agent any
+
   stages {
+
     stage('Checkout Source') {
       steps {
-        git 'https://github.com/danielkim4565/jenkins-secret-app-deployment.git'
+        git 'https://github.com/danielkim4565/Secrets.git'
       }
     }
+
     stage('Build image') {
       steps{
         script {
-          dockerImage = docker.build(dockerimagename)
-                              .arg("CLIENT_ID=348783514223-r347qhsjpvg1vnjcf6cotegq1rvtr4h1.apps.googleusercontent.com")
-                              .arg("CLIENT_SECRET=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")
+          dockerImage = docker.build dockerimagename
         }
       }
     }
+
     stage('Pushing Image') {
       environment {
                registryCredential = 'dockerhub-credentials'
@@ -31,6 +35,7 @@ pipeline {
         }
       }
     }
+
     stage('Deploying React.js container to Kubernetes') {
       steps {
         script {
@@ -38,5 +43,7 @@ pipeline {
         }
       }
     }
+
   }
+
 }
