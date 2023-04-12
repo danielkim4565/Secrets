@@ -12,7 +12,8 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate')
-
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/userDB';
+const { setupDB } = require('./db');
 
 const app = express();
 
@@ -29,7 +30,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect('mongodb://localhost:27017/userDB');
+mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => console.log('MongoDB connected!'))
+.catch((err) => console.log(err));
 
 const userSchema = new mongoose.Schema({
     email: String,
