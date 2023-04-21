@@ -13,7 +13,6 @@ const passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate')
 const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/userDB';
-const { setupDB } = require('./db');
 
 const app = express();
 
